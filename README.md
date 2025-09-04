@@ -1,7 +1,7 @@
-#PS-SinglePartitionMaker.ps1
-**PS-SinglePartitionMaker.ps1 is an interactive PowerShell script that securely wipes a selected disk, removes all partitions (including OEM), and creates a single NTFS partition with a custom label. It automatically adapts its prompts and messages to the system language (French or English).**
+# PS-SinglePartitionMaker.ps1
+** PS-SinglePartitionMaker.ps1 is an interactive PowerShell script that securely wipes a selected disk, removes all partitions (including OEM), and creates a single NTFS partition with a custom label. It automatically adapts its prompts and messages to the system language (French or English). **
 
-##Main features:
+## Main features:
 Automatic language detection – Displays prompts in French or English based on system locale.
 Disk listing – Shows all available disks with their details.
 Disk selection & validation – Ensures the chosen disk exists before proceeding.
