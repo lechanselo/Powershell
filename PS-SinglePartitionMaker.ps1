@@ -22,7 +22,7 @@ if (-not $disk) {
 }
 
 # Affichage des partitions
-Write-Host (T "`nPartitions actuelles du disque $diskNumber :" "`nCurrent partitions on disk $diskNumber:") -ForegroundColor Yellow
+Write-Host (T "`nPartitions actuelles du disque $diskNumber :" "`nCurrent partitions on disk ${diskNumber}:") -ForegroundColor Yellow
 Get-Partition -DiskNumber $diskNumber | Format-Table -AutoSize
 
 # Première confirmation
