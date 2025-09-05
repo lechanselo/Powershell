@@ -14,6 +14,7 @@ $Messages = @{
         FilesFound = "Fichiers trouvés"
         DirsFound  = "Répertoires trouvés"
         TotalSize  = "Taille totale"
+        UnitBytes  = "octets"
         Confirm    = "Souhaitez-vous effectuer le déplacement ? (O/N)"
         Moved      = "Déplacé"
         Done       = "=== Opération terminée ==="
@@ -31,6 +32,7 @@ $Messages = @{
         FilesFound = "Files found"
         DirsFound  = "Directories found"
         TotalSize  = "Total size"
+        UnitBytes  = "bytes"
         Confirm    = "Do you want to proceed with the move? (Y/N)"
         Moved      = "Moved"
         Done       = "=== Operation completed ==="
@@ -86,7 +88,7 @@ $TotalSize = ($AllItems | Where-Object { -not $_.PSIsContainer } | Measure-Objec
 Write-Host "`n$($Messages[$Lang].SimSummary)"
 Write-Host "$($Messages[$Lang].FilesFound) : $FileCount"
 Write-Host "$($Messages[$Lang].DirsFound) : $DirCount"
-Write-Host "$($Messages[$Lang].TotalSize) : {0:N0} octets" -f $TotalSize
+Write-Host ("{0} : {1:N0} {2}" -f $Messages[$Lang].TotalSize, $TotalSize, $Messages[$Lang].UnitBytes)
 
 # Confirmation utilisateur
 $confirm = Read-Host "`n$($Messages[$Lang].Confirm)"
