@@ -12,7 +12,9 @@ Write-Host (T "Disques disponibles :" "Available disks:") -ForegroundColor Cyan
 Get-Disk | Format-Table -AutoSize
 
 # Demande du numéro de disque
-$diskNumber = Read-Host (T "Entrez le numéro du disque à réinitialiser (ex: 1)" "Enter the disk number to reset (e.g., 1)")
+do{
+    $input = Read-Host (T "Entrez le numéro du disque à réinitialiser (ex: 1)" "Enter the disk number to reset (e.g., 1)")
+} while (-not [int]::TryParse($input, [ref]$diskNumber))
 
 # Vérification de l'existence du disque
 $disk = Get-Disk -Number $diskNumber -ErrorAction SilentlyContinue
