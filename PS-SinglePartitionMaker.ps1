@@ -1,3 +1,8 @@
+if (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
+    Write-Host (T "❌ Ce script doit être exécuté en tant qu'administrateur." "❌ This script must be run as administrator.") -ForegroundColor Red
+    exit
+}
+
 # Détection de la langue du système
 $culture = (Get-Culture).Name
 $isFrench = $culture -like "fr*"
@@ -19,7 +24,12 @@ do{
 # Vérification de l'existence du disque
 $disk = Get-Disk -Number $diskNumber -ErrorAction SilentlyContinue
 if (-not $disk) {
-    Write-Host (T "❌ Disque introuvable. Script interrompu." "❌ Disk not found. Script aborted.") -ForegroundColor Red
+    Write-Error (T "❌ Disque introuvable. Script interrompu." "❌ Disk not found. Script aborted.") -ForegroundColor Red
+    exit
+}
+
+if ($disk.IsBoot -or $disk.IsSystem) {
+    Write-Error (T "❌ Impossible de réinitialiser le disque système." "❌ Cannot reset system disk.") -ForegroundColor Red
     exit
 }
 
@@ -45,20 +55,46 @@ if ($confirm2 -ne (T "SUPPRIMER" "DELETE")) {
 $volumeLabel = Read-Host (T "Entrez le nom que vous souhaitez donner au disque (ex: Données)" "Enter the name you want to give to the disk (e.g., Data)")
 
 # Nettoyage du disque (inclut OEM)
-Clear-Disk -Number $diskNumber -RemoveData -RemoveOEM -Confirm:$false
+try {
+    Clear-Disk -Number $diskNumber -RemoveData -RemoveOEM -Confirm:$false -ErrorAction Stop
+} catch {
+    Write-Error (T "❌ Échec du nettoyage du disque : $_" "❌ Failed to clean disk: $_") -ForegroundColor Red
+    exit
+}
 Write-Host (T "✅ Disque nettoyé." "✅ Disk cleaned.") -ForegroundColor Green
 
 # Initialisation du disque
-Initialize-Disk -Number $diskNumber -PartitionStyle GPT
+try {
+    Initialize-Disk -Number $diskNumber -PartitionStyle GPT
+} catch {
+    Write-Error (T "❌ Échec de l'initialisation du disque : $_" "❌ Failed to initialize disk: $_") -ForegroundColor Red
+    exit
+}
 Write-Host (T "✅ Disque initialisé en GPT." "✅ Disk initialized as GPT.") -ForegroundColor Green
 
 # Création de la partition
-$newPartition = New-Partition -DiskNumber $diskNumber -UseMaximumSize -AssignDriveLetter
+try {
+    $newPartition = New-Partition -DiskNumber $diskNumber -UseMaximumSize -AssignDriveLetter
+} catch {
+    Write-Error (T "❌ Échec de la création de la partition : $_" "❌ Failed to create partition: $_") -ForegroundColor Red
+    exit
+}
 Write-Host (T "✅ Nouvelle partition créée." "✅ New partition created.") -ForegroundColor Green
 
 # Formatage avec nom personnalisé
-Format-Volume -Partition $newPartition -FileSystem NTFS -NewFileSystemLabel $volumeLabel
+try {
+    Format-Volume -Partition $newPartition -FileSystem NTFS -NewFileSystemLabel $volumeLabel
+} catch {
+    Write-Error (T "❌ Échec du formation NTFS de la partition : $_" "❌ Failed to format partition as NTFS $_") -ForegroundColor Red
+    exit
+}
 Write-Host (T "✅ Partition formatée en NTFS avec le nom '$volumeLabel'." "✅ Partition formatted as NTFS with label '$volumeLabel'.") -ForegroundColor Green
+
+# Vérifier que le volume est bien monté après formatage
+$volume = Get-Volume -FileSystemLabel $volumeLabel
+if (-not $volume) {
+    Write-Host (T "⚠️ Le volume n'a pas été monté correctement." "⚠️ Volume was not mounted correctly.") -ForegroundColor Yellow
+}
 
 # Fin
 Write-Host (T "`n🎉 Opération terminée avec succès !" "`n🎉 Operation completed successfully!") -ForegroundColor Cyan
