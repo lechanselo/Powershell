@@ -98,3 +98,4 @@ if (-not $volume) {
 
 # Fin
 Write-Host (T "`n🎉 Opération terminée avec succès !" "`n🎉 Operation completed successfully!") -ForegroundColor Cyan
+Read-Host "Appuyez sur Entrée pour quitter"
